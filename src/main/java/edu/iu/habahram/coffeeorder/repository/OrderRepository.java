@@ -3,11 +3,27 @@ package edu.iu.habahram.coffeeorder.repository;
 import edu.iu.habahram.coffeeorder.model.*;
 import org.springframework.stereotype.Repository;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
 public class OrderRepository {
     private static final AtomicInteger idGen = new AtomicInteger(1);
+    private static final String DATABASE_NAME = "orders/db.txt";
+    private static final String NEW_LINE = System.lineSeparator();
+
+    private static void appendToFile(Path path, String content)
+            throws IOException {
+        Files.write(path,
+                content.getBytes(StandardCharsets.UTF_8),
+                StandardOpenOption.CREATE,
+                StandardOpenOption.APPEND);
+    }
+
     public Receipt add(OrderData order) throws Exception {
         Beverage beverage = null;
         switch (order.beverage().toLowerCase()) {
@@ -47,8 +63,14 @@ public class OrderRepository {
             }
         }
         int rId = idGen.getAndIncrement();
+        float rCost = beverage.cost();
+        String rDescription = beverage.getDescription();
 
-        Receipt receipt = new Receipt(rId, beverage.getDescription(), beverage.cost());
+        String orderLine = String.format("%d, %.2f, %s", rId, rCost, rDescription);
+        Path path = Path.of(DATABASE_NAME);
+        appendToFile(path, orderLine + NEW_LINE);
+
+        Receipt receipt = new Receipt(rId, rCost, rDescription);
         return receipt;
     }
 }
