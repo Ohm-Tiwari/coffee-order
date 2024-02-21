@@ -3,8 +3,11 @@ package edu.iu.habahram.coffeeorder.repository;
 import edu.iu.habahram.coffeeorder.model.*;
 import org.springframework.stereotype.Repository;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 @Repository
 public class OrderRepository {
+    private static final AtomicInteger idGen = new AtomicInteger(1);
     public Receipt add(OrderData order) throws Exception {
         Beverage beverage = null;
         switch (order.beverage().toLowerCase()) {
@@ -16,6 +19,9 @@ public class OrderRepository {
                 break;
             case "espresso":
                 beverage = new Espresso();
+                break;
+            case "decaf":
+                beverage = new Decaf();
                 break;
         }
         if (beverage == null) {
@@ -40,7 +46,9 @@ public class OrderRepository {
                     throw new Exception("Condiment type '%s' is not valid".formatted(condiment));
             }
         }
-        Receipt receipt = new Receipt(beverage.getDescription(), beverage.cost());
+        int rId = idGen.getAndIncrement();
+
+        Receipt receipt = new Receipt(rId, beverage.getDescription(), beverage.cost());
         return receipt;
     }
 }
