@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
@@ -23,6 +24,7 @@ public class OrderRepository {
                 StandardOpenOption.CREATE,
                 StandardOpenOption.APPEND);
     }
+
 
     public Receipt add(OrderData order) throws Exception {
         Beverage beverage = null;
@@ -43,25 +45,30 @@ public class OrderRepository {
         if (beverage == null) {
             throw new Exception("Beverage type '%s' is not valid!".formatted(order.beverage()));
         }
-        for(String condiment : order.condiments()) {
-            switch (condiment.toLowerCase()) {
-                case "milk":
-                   beverage = new Milk(beverage);
-                   break;
-                case "mocha":
-                    beverage = new Mocha(beverage);
-                    break;
-                case "soy":
-                    beverage = new Soy(beverage);
-                    break;
-                case "whip":
-                    beverage = new Whip(beverage);
-                    break;
+        List<String> condiments = order.condiments();
+        if(condiments != null){
+            for(String condiment : order.condiments()) {
+                switch (condiment.toLowerCase()) {
+                    case "milk":
+                        beverage = new Milk(beverage);
+                        break;
+                    case "mocha":
+                        beverage = new Mocha(beverage);
+                        break;
+                    case "soy":
+                        beverage = new Soy(beverage);
+                        break;
+                    case "whip":
+                        beverage = new Whip(beverage);
+                        break;
 
-                default:
-                    throw new Exception("Condiment type '%s' is not valid".formatted(condiment));
+                    default:
+                        throw new Exception("Condiment type '%s' is not valid".formatted(condiment));
+                }
             }
+
         }
+
         int rId = idGen.getAndIncrement();
         float rCost = beverage.cost();
         String rDescription = beverage.getDescription();
