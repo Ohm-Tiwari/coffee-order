@@ -2,6 +2,7 @@ package edu.iu.habahram.coffeeorder.controllers;
 
 import edu.iu.habahram.coffeeorder.model.OrderData;
 import edu.iu.habahram.coffeeorder.model.Receipt;
+import edu.iu.habahram.coffeeorder.repository.OrderFileRepository;
 import edu.iu.habahram.coffeeorder.repository.OrderRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
-    private OrderRepository orderRepository;
+//    private OrderRepository orderRepository;
 
-    public OrderController(OrderRepository orderRepository) {
-        this.orderRepository = orderRepository;
+    private OrderFileRepository orderFileRepository;
+
+    public OrderController(OrderRepository orderRepository, OrderFileRepository orderFileRepository) {
+//        this.orderRepository = orderRepository;
+        this.orderFileRepository = orderFileRepository;
     }
 
 
@@ -24,7 +28,7 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<?> add(@RequestBody OrderData order) {
         try {
-            Receipt receipt = orderRepository.add(order);
+            Receipt receipt = orderFileRepository.add(order);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(receipt);
